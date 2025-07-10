@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*.sqlite3
+*.log
+*.pot
+*.pyc
+
+# Django
+db.sqlite3
+*.pyc
+local_settings.py
+media/
+staticfiles/
+
+# Virtual environment
+.venv/
+env/
+venv/
+
+# VSCode
+.vscode/
+
+# IDEs
+.idea/
+
+# System
+.DS_Store
+*.swp
+
+# Docker
+*.bak
+*.tmp
+*.pid
+*.seed
+*.orig
+*.log
+docker-compose.override.yml
+.env
+.env.*
+
+# Ignore built containers, volumes, etc.
+*.db
+*.tar
+*.sql
+*.sock
+__docker__/
+docker-data/
+
