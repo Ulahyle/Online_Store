@@ -1,0 +1,38 @@
+Customer
+   │
+   └── Address
+   │
+   └── Order
+         │
+         └── OrderItem ─── Product
+         │
+         └── Payment
+   │
+   └── Cart
+         │
+         └── CartItem ─── Product
+   │
+   └── Review ─── Product
+   │
+   └── Store ─── Product
+
+
+Product
+   │
+   └── Category
+   │
+   └── Store
+   │
+   └── Review
+
+
+Store
+   │
+   └── Owner
+   │
+   └── Product
+
+Category
+   │
+   └── Product
+
