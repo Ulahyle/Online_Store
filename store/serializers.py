@@ -1,6 +1,8 @@
 from rest_framework import serializers
-from store.models import Customer, Store, Category, Product, Review, Cart, CartItem, Order, OrderItem, Payment
-
+from store.models import (
+    Customer, Store, Category, Product, Review,
+    Cart, CartItem, Order, OrderItem, Payment
+)
 
 class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
