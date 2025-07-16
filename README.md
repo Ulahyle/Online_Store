@@ -1,101 +1,102 @@
-# Online Store
+# Online Store Backend – Django & DRF
 
-Welcome to the Online Store Backend repository.  
-This repository contains all the code and exercises for building a multi-vendor e-commerce backend using Django and Django REST Framework.  
-It is part of the mk bootCamp, aimed at teaching web development with Django through practical projects.
+Welcome to the **Online Store Backend** repository! This repository contains the backend code for an e-commerce platform built using Django and Django REST Framework (DRF). The frontend of this project is developed separately in React, and students are responsible for building and maintaining the backend logic, APIs, and integration layers.
 
 ## Table of Contents
 
-- About  
-- Installation  
-- Repository Structure  
-- Usage  
-- Contributing
+- [About](#about)
+- [Installation](#installation)
+- [Repository Structure](#repository-structure)
+- [Usage](#usage)
+- [Contributing](#contributing)
 
 ## About
 
-It contains the code for building the backend of a multi-vendor online store, focusing on:
+This project is part of a Django + React Bootcamp. The backend is implemented in Django and Django REST Framework (DRF), and includes API endpoints for handling customer registration, authentication (JWT + OTP via Redis), and management of entities such as Products, Orders, Cart, and more.
 
-- API development with Django REST Framework  
-- Authentication using JWT  
-- OTP-based login (via Redis)  
-- Relational database design using PostgreSQL  
-- Future integration with Docker, Redis, and Celery
+Phase 1 of the project includes:
+
+- Entity Relationship Diagram (ERD)
+- Models and admin setup
+- JWT authentication
+- OTP-based login system using Redis
+- Initial REST API endpoints
+- PostgreSQL setup
+- Redis setup for caching and OTP
 
 ## Installation
 
-To get started with this project, follow these steps:
+To get started with this repository, follow these steps:
 
-1. Clone the repository:
-```bash
-git clone git@github.com:Ulahyle/Online_Store.git
-cd Online_Store
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/your-username/online-store-backend.git
+   cd online-store-backend
+   ```
 
-2. Create a virtual environment:
-```bash
-python -m venv .venv
+2. **Create a virtual environment**: (if you haven't done so already):
+   ```bash
+   python -m venv venv
+   ```
 
-3. Activate the virtual environment:
+3. **Activate the virtual environment**:
+   - On Windows:
+     ```bash
+     venv\Scripts\activate
+     ```
+   - On macOS/Linux:
+     ```bash
+     source venv/bin/activate
+     ```
 
-On Windows:
+4. **Install the dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-bash
-Copy
-Edit
-venv\Scripts\activate
-On macOS/Linux:
+5. **Run the migrations**:
+   ```bash
+   python manage.py migrate
+   ```
 
-bash
-Copy
-Edit
-source venv/bin/activate
-Install dependencies:
+6. **Start the development server**:
+   ```bash
+   python manage.py runserver
+   ```
 
-bash
-Copy
-Edit
-pip install -r requirements.txt
-Run migrations:
+Now open your browser and go to `http://127.0.0.1:8000/` to access the API endpoints.
 
-bash
-Copy
-Edit
-python manage.py migrate
-Start the development server:
+## Repository Structure
 
-bash
-Copy
-Edit
-python manage.py runserver
-Now open your browser and go to http://127.0.0.1:8000/ to view your Django API.
+```
+/online-store-backend
+│
+├── /store/                    # Main Django app containing models, views, serializers, etc.
+├── /config/                   # Django project settings and URL configuration
+│
+├── manage.py                  # Django management script
+├── requirements.txt           # Project dependencies
+├── .env                       # Environment variables (not committed)
+├── .gitignore                 # Files and folders to be ignored by Git
+└── README.md                  # This README file
+```
 
-Repository Structure
-bash
-Copy
-Edit
-/Online_Store
-├── config/                 # Main Django project settings
-├── store/                  # Main app for products, stores, and carts
-├── manage.py               # Django management script
-├── requirements.txt        # Project dependencies
-├── .gitignore              # Git ignore file
-└── README.md               # This README file
-Usage
-Navigate to the relevant app or module to explore features.
+## Usage
 
-Follow the code examples and model structures to practice Django skills.
+1. Ensure PostgreSQL and Redis are installed and running.
+2. Configure your `.env` file with database, Redis, and JWT secret settings.
+3. Use API endpoints for customer registration, login (JWT), and OTP login.
+4. Add sample data using Django admin panel (`/admin`).
 
-Comments are provided in the code to help understand each component.
+## Contributing
 
-Contributing
-If you would like to contribute to this repository, feel free to submit a pull request.
+If you would like to contribute to this repository, feel free to submit a pull request! To contribute:
 
-Steps:
+1. Fork the repository.
+2. Create a new branch for your feature or bug fix.
+3. Make the necessary changes.
+4. Submit your pull request.
 
-Fork the repository
+---
 
-Create a new branch for your feature or bug fix
-
-Make your changes
-
-Submit a pull request
+_This project is educational and part of a training bootcamp focused on building full-featured e-commerce systems with Django, DRF, PostgreSQL, Redis, and JWT authentication._
