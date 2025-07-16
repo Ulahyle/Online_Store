@@ -31,13 +31,11 @@ To get started with this project, follow these steps:
 git clone git@github.com:Ulahyle/Online_Store.git
 cd Online_Store
 
-Create a virtual environment:
+2. Create a virtual environment:
+```bash
+python -m venv .venv
 
-bash
-Copy
-Edit
-python -m venv venv
-Activate the virtual environment:
+3. Activate the virtual environment:
 
 On Windows:
 
