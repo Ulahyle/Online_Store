@@ -10,7 +10,7 @@ class Customer(models.Model):
 
     def __str__(self):
         return self.user.username
-    
+
 class Store(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
