@@ -2,7 +2,8 @@ import random
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from accounts.serializers import RegisterSerializer, SendOTPSerializer
+from accounts.serializers import RegisterSerializer, SendOTPSerializer, VerifyOTPSerializer
+from django_redis import get_redis_connection
 from utils.redis_cli import redis_client
 
 
@@ -33,3 +34,27 @@ class SendOTPView(APIView):
 
             return Response({"message": "otp sent successfully"}, status=status.HTTP_200_OK)
         return Response(serializer.error, status=status.HTTP_400_BAD_REQUEST)
+    
+class VerifyOTPView(APIView):
+    def post(self, request):
+        serializer = VerifyOTPSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        phone = serializer.validated_data.get("phone_number")
+        email = serializer.validated_data.get("email")
+        otp = serializer.validated_data.get("otp")
+
+        identifier = phone or email
+        key = f"otp: {identifier}"
+
+        redis_conn = get_redis_connection("default")
+        stored_otp = redis_conn.get(key)
+
+        if stored_otp is None:
+            return Response({"detail": "otp expierd or there is no any!"}, status=400)
+        
+        if stored_otp.decode() != otp:
+            return Response({"detail": "incorrect otp"}, status=400)
+        
+        redis_conn.delete(key)
+        return Response({"detail": "verified, u re in!"})

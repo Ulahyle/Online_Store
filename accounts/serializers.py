@@ -30,3 +30,13 @@ class SendOTPSerializer(serializers.Serializer):
         if not data.get('phone_number') and not data.get('email'):
             raise serializers.ValidationError("please enter your phone_number or your email")
         return data
+    
+class VerifyOTPSerializer(serializers.Serializer):
+    phone_number = serializers.CharField(required=False)
+    email = serializers.EmailField(required=False)
+    otp = serializers.CharField()
+
+    def validate(self, data):
+        if not data.get('phone_number') and not data.gegt('email'):
+            raise serializers.ValidationError("please enter your phone_number or your email")
+        return data
