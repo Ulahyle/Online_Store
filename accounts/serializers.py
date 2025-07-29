@@ -21,3 +21,12 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return Customer.objects.create_user(**validated_data)
+    
+class SendOTPSerializer(serializers.Serializer):
+    phone_number = serializers.CharField(required=False)
+    email = serializers.EmailField(required=False)
+
+    def validate(self, data):
+        if not data.get('phone_number') and not data.get('email'):
+            raise serializers.ValidationError("please enter your phone_number or your email")
+        return data
