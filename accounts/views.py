@@ -1,7 +1,9 @@
+import random
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from accounts.serializers import RegisterSerializer
+from accounts.serializers import RegisterSerializer, SendOTPSerializer
+from utils.redis_cli import redis_client
 
 
 class RegisterView(APIView):
