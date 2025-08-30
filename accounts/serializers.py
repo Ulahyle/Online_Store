@@ -1,10 +1,23 @@
 from rest_framework import serializers
-from accounts.models import Customer
 from django.contrib.auth.password_validation import validate_password
+from django.utils.translation import gettext_lazy as _
+from accounts.models import Customer
+from django.db.models import Q
+
+
+def validate_contact_info(data):
+    phone = data.get('phone_number')
+    email = data.get('email')
+    if not phone and not email:
+        raise serializers.ValidationError(
+            _("Please enter your phone number or email.")
+        )
+    return data
 
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, validators=[validate_password])
+
     class Meta:
         model = Customer
         fields = [
@@ -21,22 +34,40 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return Customer.objects.create_user(**validated_data)
-    
+
+
 class SendOTPSerializer(serializers.Serializer):
     phone_number = serializers.CharField(required=False)
     email = serializers.EmailField(required=False)
 
     def validate(self, data):
-        if not data.get('phone_number') and not data.get('email'):
-            raise serializers.ValidationError("please enter your phone_number or your email")
-        return data
-    
+        return validate_contact_info(data)
+
+
 class VerifyOTPSerializer(serializers.Serializer):
     phone_number = serializers.CharField(required=False)
     email = serializers.EmailField(required=False)
     otp = serializers.CharField()
 
     def validate(self, data):
-        if not data.get('phone_number') and not data.gegt('email'):
-            raise serializers.ValidationError("please enter your phone_number or your email")
+        return validate_contact_info(data)
+
+
+class OTPLoginRequestSerializer(serializers.Serializer):
+    phone_number = serializers.CharField(required=False)
+    email = serializers.EmailField(required=False)
+
+    def validate(self, data):
+        data = validate_contact_info(data)
+
+        phone = data.get('phone_number')
+        email = data.get('email')
+
+        if not Customer.objects.filter(
+            Q(phone_number=phone) | Q(email=email)
+        ).exists():
+            raise serializers.ValidationError(
+                _("No account found with the provided credentials.")
+            )
+
         return data
