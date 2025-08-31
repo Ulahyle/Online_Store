@@ -56,17 +56,28 @@ class VerifyOTPView(APIView):
         stored_otp = redis_conn.get(key)
 
         if stored_otp is None:
-            return Response({"detail": "OTP expired or does not exist"}, status=400)
+            return Response({"detail": "OTP expired or does not exist"}, status=status.HTTP_400_BAD_REQUEST)
 
         if stored_otp.decode() != otp:
-            return Response({"detail": "Incorrect OTP"}, status=400)
+            return Response({"detail": "Incorrect OTP"}, status=status.HTTP_400_BAD_REQUEST)
 
         redis_conn.delete(key)
 
-        user, _ = Customer.objects.get_or_create(
-            phone_number=phone,
-            defaults={'email': email} if email else {}
-        )
+        # --- REVISED LOGIC ---
+        # Instead of get_or_create, we fetch the user we already know exists.
+        try:
+            # Build a query that works for either phone or email
+            query = Q()
+            if phone:
+                query |= Q(phone_number=phone)
+            if email:
+                query |= Q(email=email)
+            
+            user = Customer.objects.get(query)
+        except Customer.DoesNotExist:
+            # This should ideally never happen because OTPLoginRequestView already checked.
+            return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+        # --- END REVISED LOGIC ---
 
         refresh = RefreshToken.for_user(user)
         return Response({
@@ -78,7 +89,6 @@ class VerifyOTPView(APIView):
                 "email": user.email
             }
         })
-    
 
 class OTPLoginRequestView(APIView):
     def post(self, request):
