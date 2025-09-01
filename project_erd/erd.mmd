@@ -1,8 +1,8 @@
 erDiagram
   Customer ||--o{ Address : "has many"
-  Customer ||--o{ Market : "owns"
+  Customer ||--o{ Store : "owns"
   Category ||--o{ Category : "parent-child"
-  Market ||--o{ Product : "has many"
+  Store ||--o{ Product : "has many"
   Category ||--o{ Product : "has many"
   Product ||--o{ ProductImage : "has many"
   Customer ||--o{ Cart : "has"
@@ -48,7 +48,7 @@ erDiagram
     datetime updated_at
   }
 
-  Market {
+  Store {
     int id PK
     int owner_id FK
     string name
@@ -72,7 +72,7 @@ erDiagram
 
   Product {
     int id PK
-    int market_id FK
+    int store_id FK
     int category_id FK
     string name
     string slug
