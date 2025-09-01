@@ -63,8 +63,6 @@ class VerifyOTPView(APIView):
 
         redis_conn.delete(key)
 
-        # --- REVISED LOGIC ---
-        # Instead of get_or_create, we fetch the user we already know exists.
         try:
             # Build a query that works for either phone or email
             query = Q()
@@ -75,9 +73,7 @@ class VerifyOTPView(APIView):
             
             user = Customer.objects.get(query)
         except Customer.DoesNotExist:
-            # This should ideally never happen because OTPLoginRequestView already checked.
             return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
-        # --- END REVISED LOGIC ---
 
         refresh = RefreshToken.for_user(user)
         return Response({
@@ -99,7 +95,7 @@ class OTPLoginRequestView(APIView):
         email = serializer.validated_data.get("email")
         identifier = phone or email
 
-        otp = str(random.randint(1000000, 9999999))
+        otp = str(random.randint(100000, 999999))
         key = f"otp:{identifier}"
 
         redis_conn = get_redis_connection("default")

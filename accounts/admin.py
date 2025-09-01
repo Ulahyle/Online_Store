@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from accounts.models import Customer
+from accounts.models import Customer, Address
 
 @admin.register(Customer)
 class CustomerAdmin(BaseUserAdmin):
@@ -23,3 +23,5 @@ class CustomerAdmin(BaseUserAdmin):
             'fields': ('username', 'email', 'phone_number', 'password1', 'password2', 'is_staff', 'is_active')}
         ),
     )
+
+admin.site.register(Address)
