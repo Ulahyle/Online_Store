@@ -3,12 +3,17 @@ from rest_framework.routers import DefaultRouter
 from market import views
 
 
-router = DefaultRouter()
-# seller dashboard urls
-router.register(r'stores', views.StoreViewSet, basename='store')
-router.register(r'categories', views.CategoryViewSet, basename='category')
-router.register(r'products', views.ProductViewSet, basename='product')
+public_router = DefaultRouter()
+public_router.register(r'products', views.PublicProductViewSet, basename='public-product')
+public_router.register(r'categories', views.PublicCategoryViewSet, basename='public-category')
+
+dashboard_router = DefaultRouter()
+dashboard_router.register(r'stores', views.StoreViewSet, basename='store')
+dashboard_router.register(r'categories', views.CategoryViewSet, basename='category')
+dashboard_router.register(r'products', views.ProductViewSet, basename='product')
+
 
 urlpatterns = [
-    path('dashboard/', include(router.urls)),
+    path('dashboard/', include(dashboard_router.urls)),
+    path('', include(public_router.urls)),
 ]
