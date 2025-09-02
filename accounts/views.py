@@ -1,16 +1,19 @@
 import random
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from django_redis import get_redis_connection
+from rest_framework import status, generics, viewsets
+from rest_framework.permissions import IsAuthenticated
+from accounts.models import Customer, Address
 
-from accounts.models import Customer
 from accounts.serializers import (
     RegisterSerializer,
     SendOTPSerializer,
     VerifyOTPSerializer,
-    OTPLoginRequestSerializer
+    OTPLoginRequestSerializer,
+    CustomerProfileSerializer,
+    AddressSerializer
 )
 
 
@@ -64,7 +67,7 @@ class VerifyOTPView(APIView):
         redis_conn.delete(key)
 
         try:
-            # Build a query that works for either phone or email
+            # a query that works for either phone or email
             query = Q()
             if phone:
                 query |= Q(phone_number=phone)
@@ -103,3 +106,24 @@ class OTPLoginRequestView(APIView):
 
         print(f"OTP for {identifier}: {otp}")
         return Response({"detail": "Code sent!"}, status=200)
+
+class AddressViewSet(viewsets.ModelViewSet):
+    serializer_class = AddressSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # returns only the addresses of the currently authenticated user
+        return Address.objects.filter(customer=self.request.user)
+
+    def perform_create(self, serializer):
+        # automatically assigns the current user to the address
+        serializer.save(customer=self.request.user)
+
+class CustomerProfileView(generics.RetrieveUpdateAPIView):
+    queryset = Customer.objects.all()
+    serializer_class = CustomerProfileSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        # returns the authenticated user's profile
+        return self.request.user
