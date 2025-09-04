@@ -6,6 +6,7 @@ from order.models import Order, OrderItem
 from cart.models import Cart
 from order.serializers import OrderSerializer, CreateOrderSerializer, UpdateOrderSerializer
 from core.permissions import IsVendor
+from order.tasks import send_order_confirmation_email
 import uuid
 
 
@@ -66,5 +67,7 @@ class OrderViewSet(viewsets.ModelViewSet):
             order.save()
             cart.items.all().delete()
             
+            send_order_confirmation_email.delay(order.id)
+
             response_serializer = OrderSerializer(order)
             return Response(response_serializer.data, status=status.HTTP_201_CREATED)
