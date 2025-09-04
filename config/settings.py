@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_celery_results',
     'rest_framework',
     'corsheaders',
     'market',
@@ -172,6 +173,16 @@ CACHES = {
 }
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000", # The default port for React frontend
+    "http://localhost:3000",
     "http://127.0.0.1:3000",
 ]
+
+CELERY_BROKER_URL = 'redis://localhost:6379/2' # use a different Redis DB
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_CACHE_BACKEND = 'django-cache'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+
+# for development, print emails to the console
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
