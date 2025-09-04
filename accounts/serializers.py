@@ -76,8 +76,12 @@ class AddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = Address
         fields = [
-            'id', 'label', 'line1', 'line2', 'city',
-            'state', 'postal_code', 'country', 'is_default'
+            'id',
+            'country',
+            'province',
+            'city',
+            'postal_code',
+            'is_default'
         ]
         # Make customer field read-only as it will be set automatically
         read_only_fields = ['customer']
@@ -89,6 +93,11 @@ class CustomerProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
         fields = [
-            'id', 'username', 'email', 'first_name', 'last_name',
-            'phone_number', 'addresses'
+            'id',
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'phone_number',
+            'addresses'
         ]
