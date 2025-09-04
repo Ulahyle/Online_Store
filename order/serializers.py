@@ -16,7 +16,14 @@ class OrderSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Order
-        fields = ['id', 'customer', 'order_number', 'status', 'grand_total', 'placed_at', 'shipping_address', 'items']
+        fields = ['id',
+                  'customer',
+                  'order_number',
+                  'status',
+                  'grand_total',
+                  'placed_at',
+                  'shipping_address',
+                  'items']
 
 class CreateOrderSerializer(serializers.Serializer):
     shipping_address_id = serializers.IntegerField()
@@ -24,7 +31,7 @@ class CreateOrderSerializer(serializers.Serializer):
     def validate_shipping_address_id(self, value):
         user = self.context['request'].user
         if not Address.objects.filter(pk=value, customer=user).exists():
-            raise serializers.ValidationError("Invalid address ID provided.")
+            raise serializers.ValidationError("invalid address id provided")
         return value
 
 class UpdateOrderSerializer(serializers.ModelSerializer):
