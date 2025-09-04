@@ -60,7 +60,7 @@ class PublicProductViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ProductSerializer
     permission_classes = [AllowAny]
 
-    # Custom action to get best-selling products
+    # custom action to get best-selling products
     @action(detail=False, methods=['get'])
     def best_sellers(self, request):
         # a simple way to determine best sellers is by the number of orders
