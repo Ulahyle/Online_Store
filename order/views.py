@@ -35,10 +35,10 @@ class OrderViewSet(viewsets.ModelViewSet):
         
         cart = Cart.objects.filter(customer=request.user).first()
         if not cart or cart.items.count() == 0:
-            return Response({"detail": "Your cart is empty."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": "Ur cart is empty."}, status=status.HTTP_400_BAD_REQUEST)
 
         with transaction.atomic():
-            cart_items = CartItem.objects.filter(customer=request.user)
+            cart_items = cart.items.all()
             grand_total = cart_items.aggregate(total=Sum(F('product__price') * F('quantity')))['total'] or 0
 
             # create the order
