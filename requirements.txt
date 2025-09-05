@@ -1,5 +1,22 @@
 asgiref==3.9.1
 Django==5.2.4
+django-environ==0.12.0
 djangorestframework==3.16.0
+djangorestframework-simplejwt==5.5.0
 psycopg2-binary==2.9.10
 sqlparse==0.5.3
+tzdata==2025.2
+
+# Extras your project needs
+celery==5.5.3
+redis==6.2.0
+django-celery-results==2.6.0
+django-redis==6.0.0
+django-cors-headers==4.7.0
+drf-nested-routers==0.94.2
+coverage
+
+# Optional dev/test tools
+pytest
+pytest-django
+
