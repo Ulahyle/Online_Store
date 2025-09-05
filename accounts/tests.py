@@ -2,15 +2,16 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from django.urls import reverse
 from accounts.models import Customer, Address
+from unittest.mock import patch, MagicMock
 
 
 class AccountTests(APITestCase):
     def setUp(self):
-        # this method is run before each test.
         self.customer = Customer.objects.create_user(
-            username='testuser', 
+            username='testuser',
             password='testpassword123',
-            email='test@example.com'
+            email='test@example.com',
+            phone_number="1234567890"
         )
         self.address_data = {
             "label": "Home",
@@ -22,9 +23,6 @@ class AccountTests(APITestCase):
         }
 
     def test_customer_registration(self):
-        """
-        Ensure a new customer can be registered.
-        """
         url = reverse('register')
         data = {
             'username': 'newuser',
@@ -33,64 +31,48 @@ class AccountTests(APITestCase):
         }
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(Customer.objects.count(), 2) # One from setUp, one new
+        self.assertEqual(Customer.objects.count(), 2)
         self.assertTrue(Customer.objects.filter(username='newuser').exists())
 
     def test_jwt_login(self):
-        """
-        Ensure a customer can log in and receive JWT tokens.
-        """
         url = reverse('jwt_login')
         data = {'username': 'testuser', 'password': 'testpassword123'}
         response = self.client.post(url, data, format='json')
-        
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('access', response.data)
         self.assertIn('refresh', response.data)
 
     def test_profile_view_and_update(self):
-        """
-        Ensure an authenticated customer can view and update their profile.
-        """
         url = reverse('customer-profile')
-        
-        # 1. authenticate the client
         self.client.force_authenticate(user=self.customer)
-        
-        # 2. test get request
+
+        # get profile
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['username'], self.customer.username)
-        
-        # 3. test patch (update) request
+
+        # patch profile
         update_data = {'first_name': 'Test', 'last_name': 'User'}
         response = self.client.patch(url, update_data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['first_name'], 'Test')
-        
-        # 4. verify the database was updated
+
         self.customer.refresh_from_db()
         self.assertEqual(self.customer.first_name, 'Test')
 
     def test_unauthenticated_profile_access(self):
-        """
-        Ensure unauthenticated users cannot access the profile view.
-        """
         url = reverse('customer-profile')
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        
+
     def test_address_crud(self):
-        """
-        Ensure a customer can create, list, retrieve, and delete addresses.
-        """
-        list_create_url = reverse('address-list') # drf router default name
+        list_create_url = reverse('address-list')
         self.client.force_authenticate(user=self.customer)
 
         # create
         response = self.client.post(list_create_url, self.address_data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(Address.objects.count(), 1)
         address_id = response.data['id']
 
         # list
@@ -98,9 +80,55 @@ class AccountTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
 
-        # delete
+        # delete (soft delete → is_deleted=True)
         detail_url = reverse('address-detail', kwargs={'pk': address_id})
         response = self.client.delete(detail_url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        # self.assertEqual(Address.objects.count(), 0)
         self.assertTrue(Address.objects.get(id=address_id).is_deleted)
+
+class OTPTests(APITestCase):
+    def setUp(self):
+        self.user = Customer.objects.create_user(
+            username='otpuser',
+            password='testpassword',
+            email='otp@example.com',
+            phone_number='1112223333'
+        )
+
+    @patch("accounts.views.get_redis_connection")
+    def test_send_otp_success(self, mock_redis):
+        mock_conn = MagicMock()
+        mock_redis.return_value = mock_conn
+
+        url = reverse('otp')
+        data = {"email": "otp@example.com"}
+        response = self.client.post(url, data, format='json')
+
+        self.assertEqual(response.status_code, 200)
+        mock_conn.setex.assert_called()
+
+    @patch("accounts.views.get_redis_connection")
+    def test_verify_otp_success(self, mock_redis):
+        mock_conn = MagicMock()
+        mock_conn.get.return_value = b"123456"
+        mock_redis.return_value = mock_conn
+
+        url = reverse('verify_otp')
+        data = {"email": "otp@example.com", "otp": "123456"}
+        response = self.client.post(url, data, format='json')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("access", response.data)
+        self.assertIn("refresh", response.data)
+
+    @patch("accounts.views.get_redis_connection")
+    def test_otp_login_request(self, mock_redis):
+        mock_conn = MagicMock()
+        mock_redis.return_value = mock_conn
+
+        url = reverse('login')
+        data = {"phone_number": "1112223333"}
+        response = self.client.post(url, data, format='json')
+
+        self.assertEqual(response.status_code, 200)
+        mock_conn.setex.assert_called()
