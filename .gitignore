@@ -1,13 +1,17 @@
 # Python
 __pycache__/
 *.py[cod]
-*.sqlite3
-*.log
-*.pot
-*.pyc
 *.pyo
 *.pyd
+*.sqlite3
 *.db
+*.log
+*.pot
+
+# Coverage
+.coverage
+htmlcov/
+*.cover
 
 # Environments
 env/
@@ -28,7 +32,6 @@ venv.bak/
 Thumbs.db
 
 # Django
-*.log
 local_settings.py
 media/
 staticfiles/
