@@ -3,10 +3,11 @@ from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from order.models import Order, OrderItem
-from cart.models import Cart
+from cart.models import Cart, CartItem
 from order.serializers import OrderSerializer, CreateOrderSerializer, UpdateOrderSerializer
 from core.permissions import IsVendor
 from order.tasks import send_order_confirmation_email
+from django.db.models import Sum, F
 import uuid
 
 
@@ -37,34 +38,34 @@ class OrderViewSet(viewsets.ModelViewSet):
             return Response({"detail": "Your cart is empty."}, status=status.HTTP_400_BAD_REQUEST)
 
         with transaction.atomic():
+            cart_items = CartItem.objects.filter(customer=request.user)
+            grand_total = cart_items.aggregate(total=Sum(F('product__price') * F('quantity')))['total'] or 0
+
             # create the order
             order = Order.objects.create(
                 customer=request.user,
                 shipping_address_id=serializer.validated_data['shipping_address_id'],
-                order_number=str(uuid.uuid4())
+                order_number=str(uuid.uuid4()),
+                grand_total=grand_total
             )
             
-            grand_total = 0
             # create order items from cart items
             for item in cart.items.all():
                 if item.product.stock < item.quantity:
-                     return Response({"detail": f"Not enough stock for {item.product.name}."}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response({"detail": f"Not enough stock for {item.product.name}."}, status=status.HTTP_400_BAD_REQUEST)
                 
                 order_item = OrderItem.objects.create(
                     order=order,
                     product=item.product,
                     quantity=item.quantity,
-                    unit_price_snapshot=item.product.price # Price snapshot
+                    unit_price_snapshot=item.product.price # price snapshot
                 )
-                grand_total += order_item.unit_price_snapshot * order_item.quantity
                 
                 # decrease product stock
                 item.product.stock -= item.quantity
                 item.product.save()
 
             # update order total and clear cart
-            order.grand_total = grand_total
-            order.save()
             cart.items.all().delete()
             
             send_order_confirmation_email.delay(order.id)
